@@ -6,7 +6,6 @@ web-scraping/
 ├── core/
 │   ├── __init__.py
 │   ├── flights.py  # Main script for data extraction
-├── flights.html    # Generated HTML file with flight data
 ├── requirements.txt  # Dependencies
 └── README.md       # Project documentation
 ```
