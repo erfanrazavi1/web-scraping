@@ -1,0 +1,122 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+import jdatetime
+import time
+import webbrowser
+
+
+def setup_driver():
+    """Initialize and configure the Chrome WebDriver."""
+    options = webdriver.ChromeOptions()
+    options.add_argument("--disable-gpu")
+    return webdriver.Chrome(options=options)
+
+
+def select_location(driver, placeholder_text, city_name):
+    """Selects a city in the search box based on the placeholder text."""
+    search_box = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.XPATH, f"//input[contains(@placeholder, '{placeholder_text}')]"))
+    )
+    search_box.clear()
+    search_box.send_keys(city_name)
+    time.sleep(1)
+
+    first_option = WebDriverWait(driver, 10).until(
+        EC.presence_of_all_elements_located((By.XPATH, "//span[contains(@class, 'font-medium')]")
+    ))
+    first_option[0].click()
+
+
+def select_date(driver):
+    """Selects tomorrow's date from the calendar."""
+    try:
+        tomorrow = jdatetime.date.today() + jdatetime.timedelta(days=1)
+        # date_input = int(input('enter the date: '))
+        xpath = f"//span[@class='calendar-cell']/span[contains(text(), '{tomorrow.day}')]"
+
+        date_element = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, xpath))
+        )
+        driver.execute_script("arguments[0].classList.add('is-selected');", date_element)
+        date_element.click()
+    except Exception as e:
+        print(f"Error selecting date: {e}")
+
+
+def click_button(driver, by, value):
+    """Clicks a button identified by the given locator."""
+    button = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((by, value))
+    )
+    button.click()
+
+def get_flight_results(driver):
+    """Retrieves flight search results."""
+    try:
+        results = WebDriverWait(driver, 15).until(
+            EC.presence_of_all_elements_located((By.CLASS_NAME, "available-card__content"))
+        )
+    except TimeoutException:
+        return ["پروازی در این تاریخ وجود ندارد."]
+
+    return [result.text.strip() for result in results] if results else ["پروازی در این تاریخ وجود ندارد."]
+
+
+
+def save_to_html(data):
+    """Saves flight results to an HTML file and opens it in a browser."""
+    html_template = """
+    <!DOCTYPE html>
+    <html lang="fa">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Flight Results</title>
+        <style>
+            body { font-family: Arial, sans-serif; direction: rtl; text-align: right; background: #f5f5f5; padding: 20px; }
+            .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); }
+            h2 { color: #333; text-align: center; }
+            .flight { background: #e3f2fd; padding: 15px; border-radius: 5px; margin-bottom: 10px; border-right: 5px solid #007bff; }
+            .flight strong { color: #007bff; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Flight Results</h2>
+            {flights}
+        </div>
+    </body>
+    </html>
+    """
+
+    flights_html = "".join(f'<div class="flight">{flight}</div>' for flight in data)
+    final_html = html_template.replace("{flights}", flights_html)
+
+    with open("flights.html", "w", encoding="utf-8") as f:
+        f.write(final_html)
+
+    webbrowser.open("flights.html")
+
+
+def main():
+    """Main function to automate the flight search process."""
+    driver = setup_driver()
+    try:
+        driver.get("https://www.alibaba.ir/")
+        select_location(driver, "مبدا (شهر)", "تهران")
+        select_location(driver, "مقصد (شهر)", "شیراز")
+        select_date(driver)
+        click_button(driver, By.CLASS_NAME, "btn.is-nl.is-solid-secondary.px-6")  # Confirm button
+        time.sleep(2)
+        click_button(driver, By.XPATH, "//button[contains(text(),'جستجو')]")  # Search button
+        flight_data = get_flight_results(driver)
+    finally:
+        driver.quit()
+        save_to_html(flight_data)
+
+
+if __name__ == "__main__":
+    main()
