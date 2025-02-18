@@ -37,11 +37,6 @@ python core/flights.py
 - **HTML** (for presenting the extracted data)
 
 
-## 🔥 Future Enhancements
-- 🚀 Enhance script robustness against website changes
-- 🌍 Add support for extracting data from additional websites
-- 🖥️ Implement a graphical user interface for easier interaction
-
 ## 📝 License
 This project is licensed under the **MIT License**.
 
