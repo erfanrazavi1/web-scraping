@@ -6,7 +6,6 @@ web-scraping/
 ├── core/
 │   ├── __init__.py
 │   ├── flights.py  # Main script for data extraction
-├── flights.html    # Generated HTML file with flight data
 ├── requirements.txt  # Dependencies
 └── README.md       # Project documentation
 ```
@@ -37,11 +36,6 @@ python core/flights.py
 - **Python** (with `Selenium` and `jdatetime` libraries)
 - **HTML** (for presenting the extracted data)
 
-
-## 🔥 Future Enhancements
-- 🚀 Enhance script robustness against website changes
-- 🌍 Add support for extracting data from additional websites
-- 🖥️ Implement a graphical user interface for easier interaction
 
 ## 📝 License
 This project is licensed under the **MIT License**.
