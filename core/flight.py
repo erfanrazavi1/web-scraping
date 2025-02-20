@@ -14,20 +14,23 @@ def setup_driver():
     options.add_argument("--disable-gpu")
     return webdriver.Chrome(options=options)
 
-
-def select_location(driver, placeholder_text, city_name):
-    """Selects a city in the search box based on the placeholder text."""
-    search_box = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.XPATH, f"//input[contains(@placeholder, '{placeholder_text}')]"))
+def select_location(driver, label_text, city_name):
+    """انتخاب شهر در کادر جستجو بر اساس متن label."""
+    label = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.XPATH, f"//label[contains(text(), '{label_text}')]"))
     )
+    input_id = label.get_attribute("for")  # گرفتن id فیلد ورودی
+    search_box = driver.find_element(By.ID, input_id)
+    
     search_box.clear()
     search_box.send_keys(city_name)
     time.sleep(1)
 
     first_option = WebDriverWait(driver, 10).until(
-        EC.presence_of_all_elements_located((By.XPATH, "//span[contains(@class, 'font-medium')]")
-    ))
+        EC.presence_of_all_elements_located((By.XPATH, "//span[contains(@class, 'font-medium')]"))
+    )
     first_option[0].click()
+
 
 
 def select_date(driver):
