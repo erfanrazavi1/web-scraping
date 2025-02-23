@@ -6,7 +6,7 @@ from selenium.common.exceptions import TimeoutException
 import jdatetime
 import time
 import webbrowser
-
+import sqlite3
 
 def setup_driver():
     """Initialize and configure the Chrome WebDriver."""
@@ -70,6 +70,8 @@ def get_flight_results(driver):
 
 
 def save_to_html(data):
+    import os
+    os.makedirs("html_data", exist_ok=True)
     """Saves flight results to an HTML file and opens it in a browser."""
     html_template = """
     <!DOCTYPE html>
@@ -98,28 +100,19 @@ def save_to_html(data):
     flights_html = "".join(f'<div class="flight">{flight}</div>' for flight in data)
     final_html = html_template.replace("{flights}", flights_html)
 
-    with open("flights.html", "w", encoding="utf-8") as f:
+    with open("html_data/flights.html", "w", encoding="utf-8") as f:
         f.write(final_html)
+def save_to_database(data):
+    """ذخیره اطلاعات پرواز در دیتابیس SQLite"""
+    conn = sqlite3.connect("flights.db")
+    cursor = conn.cursor()
 
-    webbrowser.open("flights.html")
+    for flight in data:
+        cursor.execute("INSERT INTO flights (details) VALUES (?)", (flight,))
 
-
-def main():
-    """Main function to automate the flight search process."""
-    driver = setup_driver()
-    try:
-        driver.get("https://www.alibaba.ir/")
-        select_location(driver, "مبدا (شهر)", "تهران")
-        select_location(driver, "مقصد (شهر)", "شیراز")
-        select_date(driver)
-        click_button(driver, By.CLASS_NAME, "btn.is-nl.is-solid-secondary.px-6")  # Confirm button
-        time.sleep(2)
-        click_button(driver, By.XPATH, "//button[contains(text(),'جستجو')]")  # Search button
-        flight_data = get_flight_results(driver)
-    finally:
-        driver.quit()
-        save_to_html(flight_data)
+    conn.commit()
+    conn.close()
 
 
-if __name__ == "__main__":
-    main()
+
+
