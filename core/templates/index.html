@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جستجوی پرواز</title>
+</head>
+<body>
+    <h2>جستجوی پرواز</h2>
+    <form id="flight-form">
+        <label for="start">مبدا:</label><br>
+        <input type="text" id="start" name="start" required>
+        
+        <label for="end">مقصد:</label><br>
+        <input type="text" id="end" name="end" required>
+        
+        <button type="submit">جستجو</button>
+    </form>
+
+    <h3>نتایج:</h3>
+    <div id="results"></div>
+
+    <script>
+        document.getElementById('flight-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            let startCity = document.getElementById('start').value;
+            let endCity = document.getElementById('end').value;
+
+            fetch('/search', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ start: startCity, end: endCity })
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('results').innerHTML = data;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
