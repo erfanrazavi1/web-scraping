@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from scrapers.flight import *
 from database_py.db import *
 import time
@@ -31,7 +31,9 @@ def main():
         driver.quit()
         save_to_html(flight_data)
         save_to_database(flight_data)
-    return {"message": "Search completed successfully", "data": flight_data}
+    return jsonify({
+        "message": "Search completed successfully",
+        "data": flight_data })
 
 
 if __name__ == "__main__":

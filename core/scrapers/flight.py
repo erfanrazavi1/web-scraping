@@ -100,7 +100,7 @@ def save_to_html(data):
     flights_html = "".join(f'<div class="flight">{flight}</div>' for flight in data)
     final_html = html_template.replace("{flights}", flights_html)
 
-    with open("html_data/flights.html", "w", encoding="utf-8") as f:
+    with open("./core/html_data/flights.html", "w", encoding="utf-8") as f:
         f.write(final_html)
 def save_to_database(data):
     """ذخیره اطلاعات پرواز در دیتابیس SQLite"""
